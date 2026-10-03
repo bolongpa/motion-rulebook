@@ -1,0 +1,21 @@
+# Demo panel: Thunderbolt vs a Grass/Poison target.
+# Electric vs Grass = 0.5, vs Poison = 1.0 -> not_very_effective.
+panel:
+  id: demo-pikachu-vs-bulbasaur
+  scene: "Forest clearing, morning mist"
+  beat: "Pikachu unleashes Thunderbolt on Bulbasaur"
+  dialogue:
+    - speaker: Ash
+      line: "Pikachu, Thunderbolt!"
+    - speaker: Pikachu
+      line: "Pika pika!"
+expansion_points:
+  - type: move_depiction
+    move: Thunderbolt
+    user: Pikachu
+  - type: causal_feedback
+    move_type: electric
+    target: Bulbasaur
+    target_types: [grass, poison]
+  - type: vocalization
+    speaker: Pikachu

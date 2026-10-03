@@ -1,0 +1,192 @@
+# Expansion rulebook: Pokemon Gen-1 (TV anime canon first).
+#
+# REFERENCE IMPLEMENTATION for motion-rulebook. The schema is generic --
+# fork this file for your own IP: keep the schema, replace the rules.
+#
+# Each rule fires on an *expansion point* (a place where panel->animation
+# must invent information) and carries:
+#   constraint   human-readable statement of what must hold
+#   prompt_text  positive-only natural language, injected into video prompts
+#   check        verification question + expected answer (for the VLM judge)
+#   provenance   canon source; canon_priority in meta resolves conflicts
+meta:
+  name: pokemon-gen1-tv
+  version: 0.1.0
+  canon_priority: [tv-anime, games-gen1]
+
+rules:
+  - id: capture-sequence
+    trigger:
+      type: event_sequence
+      event: capture
+    constraint: >-
+      A successful capture plays as: the ball shakes exactly three times,
+      pauses, then clicks shut with a bright flash. Fewer or more shakes
+      break canon.
+    prompt_text: >-
+      The Poke Ball shakes exactly three times, pauses briefly, then clicks
+      shut with a bright white flash.
+    check:
+      question: How many times does the Poke Ball shake before the click?
+      expected: three
+    provenance:
+      canon: tv-anime
+      ref: "Series standard capture depiction, e.g. EP003"
+
+  - id: thunderbolt-depiction
+    trigger:
+      type: move_depiction
+      move: Thunderbolt
+    constraint: >-
+      Thunderbolt is discharged from the cheek pouches as thick golden
+      branching lightning bolts that arc directly to the target. It is an
+      electric discharge, never a projectile or beam from the mouth.
+    prompt_text: >-
+      The cheek pouches glow bright yellow, then thick golden branching
+      lightning bolts arc from the cheeks straight into the target.
+    check:
+      question: Where does the lightning come from?
+      expected: the cheek pouches
+    provenance:
+      canon: tv-anime
+      ref: "Series standard, e.g. EP005"
+
+  - id: ember-depiction
+    trigger:
+      type: move_depiction
+      move: Ember
+    constraint: >-
+      Ember is breathed from the mouth as small orange flames that flicker
+      and drift toward the target. Small cinders, not a flamethrower torrent.
+    prompt_text: >-
+      Small orange flames flicker from the open mouth and drift toward the
+      target, trailing tiny cinders.
+    check:
+      question: Where do the flames come from and how big are they?
+      expected: small flames from the mouth
+    provenance:
+      canon: tv-anime
+      ref: "Charmander line depiction, e.g. EP011"
+
+  - id: vine-whip-depiction
+    trigger:
+      type: move_depiction
+      move: Vine Whip
+    constraint: >-
+      Two green vines extend from the bulb on the back (Bulbasaur line) and
+      lash outward at the target. The vines stay attached to the user.
+    prompt_text: >-
+      Two long green vines shoot from the bulb on its back and lash outward
+      at the target, staying rooted to the body.
+    check:
+      question: How many vines strike, and do they stay attached?
+      expected: two vines, staying attached to the body
+    provenance:
+      canon: tv-anime
+      ref: "Bulbasaur line depiction, e.g. EP010"
+
+  - id: effectiveness-immune
+    trigger:
+      type: causal_feedback
+      effectiveness: immune
+    constraint: >-
+      When the chart says the target is immune, the attack washes over it
+      with no visible effect: the target stands completely unaffected in a
+      steady stance. No flinch, no damage acting at all.
+    prompt_text: >-
+      The lightning arcs across the target and dissipates into sparks; the
+      target stands completely unaffected in a steady stance.
+    check:
+      question: How does the attack affect the target?
+      expected: the target stands completely unaffected
+    provenance:
+      canon: games-gen1
+      ref: "Gen-1 type chart; anime depiction e.g. EP005 (Onix vs Pikachu)"
+
+  - id: effectiveness-not-very-effective
+    trigger:
+      type: causal_feedback
+      effectiveness: not_very_effective
+    constraint: >-
+      When the type chart says "not very effective", the target shows only a
+      minor reaction: a brief stagger, shaking off dust, steady stance kept.
+      No knockback, no scream, no heavy damage acting.
+    prompt_text: >-
+      On impact the target staggers briefly, shakes off a puff of dust, and
+      holds a steady stance; the impact flash stays small and dim.
+    check:
+      question: How does the target react to the hit?
+      expected: minor reaction only, keeps its stance
+    provenance:
+      canon: games-gen1
+      ref: "Gen-1 type chart (bundled type data); anime damage acting norm"
+
+  - id: effectiveness-super-effective
+    trigger:
+      type: causal_feedback
+      effectiveness: super_effective
+    constraint: >-
+      When the type chart says "super effective", the hit lands hard: bright
+      impact flash, the target knocked backward with visible strain.
+    prompt_text: >-
+      A bright flash erupts on impact and the target is knocked backward,
+      skidding across the ground with visible strain.
+    check:
+      question: How does the target react to the hit?
+      expected: knocked backward with visible strain
+    provenance:
+      canon: games-gen1
+      ref: "Gen-1 type chart (bundled type data); anime damage acting norm"
+
+  - id: faint-sequence
+    trigger:
+      type: event_sequence
+      event: faint
+    constraint: >-
+      A fainted Pokemon's eyes turn into swirls, its body goes limp, and it
+      collapses. It stays down; a fainted Pokemon takes no further action.
+    prompt_text: >-
+      Its eyes turn into swirls, its body goes limp, and it collapses to the
+      ground, lying still.
+    check:
+      question: What do the eyes look like after the collapse?
+      expected: swirl eyes
+    provenance:
+      canon: tv-anime
+      ref: "Series standard faint depiction"
+
+  - id: evolution-sequence
+    trigger:
+      type: event_sequence
+      event: evolution
+    constraint: >-
+      Evolution plays as: the body is enveloped in bright white light, the
+      silhouette stretches and reshapes inside the glow, then a flash reveals
+      the new form. The in-between shape is never clearly visible.
+    prompt_text: >-
+      Bright white light envelops the body; the glowing silhouette stretches
+      and reshapes, then a flash reveals the new evolved form.
+    check:
+      question: Is the mid-evolution body clearly visible?
+      expected: only a glowing reshaping silhouette
+    provenance:
+      canon: tv-anime
+      ref: "Series standard evolution sequence, e.g. EP043"
+
+  - id: pokemon-vocalization
+    trigger:
+      type: vocalization
+    constraint: >-
+      Pokemon vocalize using only syllables of their own species name
+      (e.g. "pika", "chu"). Pitch, tempo, and repetition vary with emotion,
+      but no human-language words. Documented exception: Team Rocket's Meowth
+      speaks human language.
+    prompt_text: >-
+      It vocalizes using only syllables of its own species name, for example
+      pika and chu, with pitch and tempo shifting to match its emotion.
+    check:
+      question: Does it speak any human-language words?
+      expected: only its own name syllables
+    provenance:
+      canon: tv-anime
+      ref: "Series standard; Meowth exception established EP002"

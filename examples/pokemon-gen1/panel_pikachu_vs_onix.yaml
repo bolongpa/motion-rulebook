@@ -1,0 +1,22 @@
+# Demo panel: the famous Pewter Gym moment (EP005).
+# Electric vs Rock/Ground -> immune per the Gen-1 chart, so the compiler
+# must select effectiveness-immune (not a damage rule) purely from data.
+panel:
+  id: ep005-pikachu-vs-onix
+  scene: "Pewter Gym, rocky arena under harsh spotlights"
+  beat: "Pikachu unleashes Thunderbolt on Onix"
+  dialogue:
+    - speaker: Ash
+      line: "Pikachu, Thunderbolt, now!"
+    - speaker: Pikachu
+      line: "Pika-chu!"
+expansion_points:
+  - type: move_depiction
+    move: Thunderbolt
+    user: Pikachu
+  - type: causal_feedback
+    move_type: electric
+    target: Onix
+    target_types: [rock, ground]
+  - type: vocalization
+    speaker: Pikachu

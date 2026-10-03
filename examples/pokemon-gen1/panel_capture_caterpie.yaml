@@ -1,0 +1,12 @@
+# Demo panel: a capture in Viridian Forest.
+panel:
+  id: ep003-capture-caterpie
+  scene: "Viridian Forest, dappled sunlight through the canopy"
+  beat: "Ash throws a Poke Ball at the weakened Caterpie"
+  dialogue:
+    - speaker: Ash
+      line: "Poke Ball, go!"
+expansion_points:
+  - type: event_sequence
+    event: capture
+    target: Caterpie
