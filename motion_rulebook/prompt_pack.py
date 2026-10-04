@@ -29,15 +29,21 @@ Panel spec (YAML):
 Targets:
     generic - markdown sections; paste into any tool.
     compact - one flowing block for tools with tight prompt limits.
+
+Grounding:
+    `grounders` is a list of callables `fn(point) -> dict` that enrich an
+    expansion point before rule matching (e.g. deriving type effectiveness
+    from a chart). Grounding is per-world *content*, not engine: the engine
+    ships with no grounders. See demo/pokemon-gen1 for an example.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Callable
 
 import yaml
 
 from .rulebook import Rulebook
-from .type_chart import effectiveness
 
 TARGETS = ("generic", "compact")
 
@@ -59,23 +65,22 @@ def load_panel(path: str) -> dict:
     return data
 
 
-def _ground_point(point: dict) -> dict:
-    """Derive chart-grounded attributes before rule matching."""
+def _ground_point(point: dict, grounders: list[Callable]) -> dict:
+    """Run per-world grounding hooks before rule matching."""
     p = dict(point)
-    if (p.get("type") == "causal_feedback"
-            and "move_type" in p and "target_types" in p
-            and "effectiveness" not in p):
-        mult, label = effectiveness(p["move_type"], p["target_types"])
-        p["effectiveness"] = label
-        p["effectiveness_multiplier"] = mult
+    for g in grounders:
+        extra = g(p) or {}
+        p.update(extra)
     return p
 
 
 def compile_prompt_pack(rulebook: Rulebook, panel: dict,
-                        target: str = "generic") -> PromptPack:
+                        target: str = "generic",
+                        grounders: list[Callable] | None = None) -> PromptPack:
     if target not in TARGETS:
         raise ValueError(f"unknown target {target!r}; choose from {TARGETS}")
-    points = [_ground_point(p) for p in panel.get("expansion_points", [])]
+    grounders = grounders or []
+    points = [_ground_point(p, grounders) for p in panel.get("expansion_points", [])]
     matched: list[tuple[dict, object]] = []
     seen: set[str] = set()
     for p in points:

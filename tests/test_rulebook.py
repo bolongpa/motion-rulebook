@@ -8,7 +8,7 @@ from motion_rulebook.rulebook import (
     Rule, Rulebook, EXPANSION_POINT_TYPES, assert_no_negations,
 )
 
-RB = os.path.join(os.path.dirname(__file__), "..", "rulebooks", "pokemon-gen1.yaml")
+RB = os.path.join(os.path.dirname(__file__), "..", "demo", "pokemon-gen1", "rulebook.yaml")
 
 
 @pytest.fixture(scope="module")

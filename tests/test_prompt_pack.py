@@ -3,12 +3,18 @@ import os
 
 import pytest
 
-from motion_rulebook.prompt_pack import compile_prompt_pack, load_panel
+from motion_rulebook.prompt_pack import compile_prompt_pack as _compile, load_panel
 from motion_rulebook.rulebook import Rulebook
-from motion_rulebook.type_chart import effectiveness, multiplier
+from motion_rulebook.type_chart import effectiveness, multiplier, grounder
 
-RB = os.path.join(os.path.dirname(__file__), "..", "rulebooks", "pokemon-gen1.yaml")
-EX = os.path.join(os.path.dirname(__file__), "..", "examples", "pokemon-gen1")
+
+def compile_prompt_pack(rb, panel, target="generic"):
+    # Demo wiring: the pokemon type-chart grounder is per-world content,
+    # passed explicitly -- the compiler itself ships with no grounders.
+    return _compile(rb, panel, target=target, grounders=[grounder])
+
+RB = os.path.join(os.path.dirname(__file__), "..", "demo", "pokemon-gen1", "rulebook.yaml")
+EX = os.path.join(os.path.dirname(__file__), "..", "demo", "pokemon-gen1", "panels")
 
 
 @pytest.fixture(scope="module")

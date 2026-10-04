@@ -45,3 +45,18 @@ def effectiveness(attacking: str,
     else:
         label = "neutral"
     return m, label
+
+
+def grounder(point: dict) -> dict:
+    """Example grounding hook for compile_prompt_pack(grounders=[...]).
+
+    Derives `effectiveness` for causal_feedback points from the chart.
+    Per-world content, not engine: pass it explicitly; the compiler ships
+    with no grounders.
+    """
+    if (point.get("type") == "causal_feedback"
+            and "move_type" in point and "target_types" in point
+            and "effectiveness" not in point):
+        mult, label = effectiveness(point["move_type"], point["target_types"])
+        return {"effectiveness": label, "effectiveness_multiplier": mult}
+    return {}

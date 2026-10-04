@@ -1,0 +1,8 @@
+# candidate_id	tier	canon	ref	url	quote
+# tiers: primary (the work itself) | official (allowlisted domain, url required)
+# fan wikis are NEVER provenance -- e.g. the row below is REJECTED:
+# cand-event_capture-01	official	fan-wiki	bulbapedia	https://bulbapedia.bulbagarden.net/wiki/Catch	some quote
+cand-event_capture-01	primary	tv-anime	EP003		The ball emits a bright white flash as it clicks shut
+cand-event_capture-02	primary	tv-anime	EP003		The ball visibly shakes three times before the click
+cand-move_thunderbolt-03	primary	tv-anime	EP005		Pikachu's cheek pouches glow bright yellow before discharge
+cand-move_thunderbolt-04	primary	tv-anime	EP005		Thick golden branching bolts arc from the cheeks to the target

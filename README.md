@@ -8,75 +8,92 @@ breakdown, between-panel fill, vocalization, off-frame content. An
 **expansion rule** constrains exactly that invented information so it stays
 true to the fictional world's canon.
 
-`motion-rulebook` is the toolkit for authoring and applying expansion rules:
+`motion-rulebook` is the **automated workflow** for producing and applying
+expansion rules. Every stage writes files for human review -- mining only
+ever proposes *candidates*; humans promote them into canon.
 
-1. **Rulebook (user-editable data).** Canon depiction rules as YAML -- one
-   rule = trigger + constraint + `prompt_text` + `check` + provenance.
-   The engine is generic; each rulebook is per-world content. Pokemon Gen-1
-   ships as the reference implementation (`rulebooks/pokemon-gen1.yaml`).
-2. **Prompt-pack compiler (influence).** Closed video tools (Runway, Pika,
-   Kling, Luma, Hailuo, Vidu, ...) can't be hard-constrained, so each rule
-   compiles to positive-only natural language appended to your motion
-   prompt. Copy-paste into any tool -- no API key needed.
-3. **Verifier (verify).** Every rule also carries a `check`
-   (question + expected answer) forming a verification checklist for the
-   generated clip. v1 ships a deterministic `FakeVLM` judge; the
-   generate -> verify -> retry loop against real video APIs is roadmap.
+## The workflow
+
+```
+corpus/  (user-submitted panels: image + event + artist + source)
+  --describe-->  described.jsonl   (VLM documents observable elements)
+  --mine------>  candidates.yaml   (consensus across instances;
+                                    support >= 0.8 AND >= 2 artists)
+  --ground---->  grounded.yaml     (official-source provenance ONLY;
+                                    fan wikis rejected, never provenance)
+  --human-->     rulebook.yaml     (reviewed, versioned, per-world content)
+  --compile--->  prompt-pack.txt   (paste into any video generator)
+  --check----->  verification report (VLM/human checklist per rule)
+```
+
+**Canon policy:** only official sources count as canon. The work itself
+(episodes, manga volumes) is the primary source for depiction rules;
+official sites/publications/game data are secondary. Fan wikis are at most
+discovery leads -- they can never appear in provenance. The miner's
+consensus gates (support threshold + artist diversity) separate canon
+(stable across artists) from artist style.
+
+**Honest boundary:** closed video tools (Runway, Pika, Kling, Luma,
+Hailuo, Vidu, ...) cannot be hard-constrained. The workflow works by
+*influence* (rule -> positive-only prompt text) + *verify* (checklist ->
+judge -> bounded retry).
 
 ## Quickstart
 
 ```bash
 pip install -r requirements.txt
 
-# list the reference rules
-motion-rulebook rules
+# 1-3. mine candidates from a corpus (FakeVLM demo; real: --vlm openai)
+motion-rulebook describe --corpus demo/pokemon-gen1/corpus \
+    --out described.jsonl --vlm fake \
+    --canned demo/pokemon-gen1/canned_descriptions.json
+motion-rulebook mine --described described.jsonl --out candidates.yaml
+motion-rulebook ground --candidates candidates.yaml \
+    --evidence demo/pokemon-gen1/evidence.tsv --out grounded.yaml
 
-# compile a panel into a prompt pack (paste into any video generator)
-motion-rulebook compile --panel examples/pokemon-gen1/panel_pikachu_vs_onix.yaml
+# 4. human promotes grounded candidates into rulebooks/<world>.yaml,
+#    then compile a prompt pack for any video tool:
+motion-rulebook compile --panel demo/pokemon-gen1/panels/panel_pikachu_vs_onix.yaml \
+    --rulebook demo/pokemon-gen1/rulebook.yaml --target compact \
+    --grounder motion_rulebook.type_chart:grounder
 
-# compact single-block variant for tight prompt limits
-motion-rulebook compile --panel examples/pokemon-gen1/panel_capture_caterpie.yaml \
-    --target compact
-
-# demo the verify step
-motion-rulebook check --panel examples/pokemon-gen1/panel_capture_caterpie.yaml \
-    --observe capture-sequence="the ball shook three times, then clicked"
+# one-command end-to-end demo:
+./demo/pokemon-gen1/run_demo.sh
 ```
 
-## How it works
+## Layout
 
-A panel spec declares its **expansion points** -- the places where
-panel->animation must invent:
+- `motion_rulebook/` -- generic engine (no IP-specific content):
+  `rulebook.py` (schema/loader/matcher), `workflow/` (corpus/describe/
+  mine/ground), `prompt_pack.py` (generic/compact compiler),
+  `verifier.py` (checklist runner), `type_chart.py` (example grounding
+  plugin: Gen-1 chart, kept as demo content), `cli.py`.
+- `rulebooks/` -- generated rulebooks live here (not shipped; see its README).
+- `demo/pokemon-gen1/` -- end-to-end demo: corpus -> candidates ->
+  reviewed `rulebook.yaml` -> prompt packs. The demo proves the workflow;
+  it is not the product.
 
-| type | invents... |
-|---|---|
-| `move_depiction` | how an attack looks in motion |
-| `event_sequence` | fixed canonical sequences (capture, faint, evolution) |
-| `causal_feedback` | battle consequences; effectiveness derived from data |
-| `vocalization` | speech/sound delivery |
-| `continuity` | local continuity between adjacent panels |
-| `offscreen` | invention outside the drawn frame |
-| `disambiguation` | resolving an ambiguous panel |
+## Rule schema
 
-The compiler subset-matches each point against rule triggers. For
-`causal_feedback` points the Gen-1 type chart (bundled data) derives the
-effectiveness label first -- e.g. Electric vs Onix (Rock/Ground) resolves to
-`immune`, selecting the immune depiction rule purely from data (the famous
-EP005 moment), with no depiction logic hardcoded in the engine.
+```yaml
+- id: capture-sequence
+  trigger: {type: event_sequence, event: capture}  # subset-matched
+  constraint: "human-readable: what must hold"
+  prompt_text: "positive-only, injected into video prompts"
+  check: {question: "...", expected: "..."}       # verification
+  provenance: {canon: tv-anime, ref: "EP003"}     # official only
+```
 
-## Write your own rulebook
-
-Fork `rulebooks/pokemon-gen1.yaml`. Keep the schema; replace the rules.
-Every rule needs `id`, `trigger`, `constraint`, `prompt_text`
-(positive-only -- negations backfire in diffusion text encoders),
-`check.question` / `check.expected`, and `provenance.canon` / `provenance.ref`.
-Rulebooks are versioned; generated video should cite the version used.
+Expansion point types: `move_depiction`, `event_sequence`,
+`causal_feedback`, `vocalization`, `continuity`, `offscreen`,
+`disambiguation`.
 
 ## Roadmap
 
-- API harness: generate -> verify -> retry loop for Runway/Pika/Kling/Luma/Hailuo/Vidu
+- Panel-spec auto-extraction (VLM -> beat/cast/expansion points, human confirms)
+- API harness: generate -> verify -> retry for hosted video APIs
 - ComfyUI nodes (the one place true hard constraints are possible)
-- More reference rulebooks (other IPs, original works)
+- More grounding plugins (other IPs' official sources)
 
 ## License
 

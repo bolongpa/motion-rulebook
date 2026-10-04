@@ -1,0 +1,55 @@
+candidates:
+- id: cand-event_capture-01
+  event: event_capture
+  element: bright white flash as the ball clicks shut
+  support: 3/3
+  support_ratio: 1.0
+  artists:
+  - artist-A
+  - artist-B
+  panels:
+  - capture_01
+  - capture_02
+  - capture_03
+  status: candidate
+- id: cand-event_capture-02
+  event: event_capture
+  element: the poke ball shakes exactly three times
+  support: 3/3
+  support_ratio: 1.0
+  artists:
+  - artist-A
+  - artist-B
+  panels:
+  - capture_01
+  - capture_02
+  - capture_03
+  status: candidate
+- id: cand-move_thunderbolt-03
+  event: move_thunderbolt
+  element: cheek pouches glow bright yellow
+  support: 4/4
+  support_ratio: 1.0
+  artists:
+  - artist-A
+  - artist-B
+  panels:
+  - thunderbolt_01
+  - thunderbolt_02
+  - thunderbolt_03
+  - thunderbolt_04
+  status: candidate
+- id: cand-move_thunderbolt-04
+  event: move_thunderbolt
+  element: thick golden branching lightning bolts arc from the cheeks to the target
+  support: 4/4
+  support_ratio: 1.0
+  artists:
+  - artist-A
+  - artist-B
+  panels:
+  - thunderbolt_01
+  - thunderbolt_02
+  - thunderbolt_03
+  - thunderbolt_04
+  status: candidate

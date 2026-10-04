@@ -1,0 +1,40 @@
+# Demo corpus: 7 placeholder panels, 2 events, 2 artists.
+# Images are labeled placeholders -- the describe stage runs on FakeVLM
+# (canned_descriptions.json), so this demo proves the workflow mechanics,
+# not real VLM mining. Swap in real panels + --vlm openai for production.
+items:
+  - id: thunderbolt_01
+    image: img/thunderbolt_01.png
+    event: move_thunderbolt
+    artist: artist-A
+    source: EP005
+  - id: thunderbolt_02
+    image: img/thunderbolt_02.png
+    event: move_thunderbolt
+    artist: artist-A
+    source: EP011
+  - id: thunderbolt_03
+    image: img/thunderbolt_03.png
+    event: move_thunderbolt
+    artist: artist-B
+    source: EP025
+  - id: thunderbolt_04
+    image: img/thunderbolt_04.png
+    event: move_thunderbolt
+    artist: artist-B
+    source: EP042
+  - id: capture_01
+    image: img/capture_01.png
+    event: event_capture
+    artist: artist-A
+    source: EP003
+  - id: capture_02
+    image: img/capture_02.png
+    event: event_capture
+    artist: artist-B
+    source: EP012
+  - id: capture_03
+    image: img/capture_03.png
+    event: event_capture
+    artist: artist-B
+    source: EP030
